@@ -1,10 +1,14 @@
 from .step import Step
+import logging
 
 from moviepy.editor import VideoFileClip
 from moviepy.editor import concatenate_videoclips
 
 class EditVideo(Step):
     def process(self, data, inputs, utils):
+        logger = logging.getLogger(__name__)
+        logger.info("in EditVideo")
+
         clips = []
         for found in data:
             start, end = self.parse_caption_time(found.time)

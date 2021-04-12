@@ -1,8 +1,10 @@
 from .step import Step
-
+import logging
 
 class ReadCaptions(Step):
     def process(self, data, inputs, utils):
+        logger = logging.getLogger(__name__)
+        logger.info("in ReadCaptions")
         for yt in data:
             if not utils.caption_file_exist(yt):
                 continue

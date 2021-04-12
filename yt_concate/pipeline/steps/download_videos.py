@@ -1,3 +1,7 @@
+import time
+import concurrent.futures
+import logging
+
 from .step import Step
 from yt_concate.settings import VIDEOS_DIR
 
@@ -6,17 +10,36 @@ from pytube import YouTube
 
 class DownloadVideos(Step):
     def process(self, data, inputs, utils):
+        logger = logging.getLogger(__name__)
+        logger.info("in DownloadVideos")
+
+        start = time.time()
+
         yt_set = set([found.yt for found in data])
-        print('videos to download=', len(yt_set))
+        logger.debug('videos to download=', len(yt_set))
+        yt_list = []
+
         for yt in yt_set:
             url = yt.url
             if utils.video_file_exist(yt):
-                print(f'found existing video file for {url}, skipping')
+                logger.debug(f'found existing video file for {url}, skipping')
                 continue
+            yt_list.append(yt)
 
-            print('downloading', url)
-            try:
-                YouTube(url).streams.first().download(output_path=VIDEOS_DIR, filename=yt.id)
-            except:
-                print(f'**** downloading {url} get error ****')
+        for yt in yt_list:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                executor.submit(self._DownloadVideo, yt)
+
+        end = time.time()
+
+        logger.info('download all videos took', end - start, 'seconds')
         return data
+
+    def _DownloadVideo(self, yt):
+        logger = logging.getLogger(__name__)
+        logger.debug('downloading', yt.url)
+        try:
+            YouTube(yt.url).streams.first().download(output_path=VIDEOS_DIR, filename=yt.id)
+        except:
+            logger.warning(f'**** downloading {yt.url} get error ****')
+
