@@ -37,7 +37,7 @@ def config_logger():
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)   # 要預設到最低警告 level
 
-    file_handler = logging.FileHandler('test.log')  # 生成 日誌記錄輸出到文件中 的實例
+    file_handler = logging.FileHandler('logging.log')  # 生成 日誌記錄輸出到文件中 的實例
 
     # create formatter
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
